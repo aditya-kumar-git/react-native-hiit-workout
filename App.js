@@ -1,19 +1,28 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react"
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
+import { NavigationContainer } from "@react-navigation/native"
+import { createStackNavigator } from "@react-navigation/stack"
+import MainPage from "./SRC/Screens/MainPage"
+import AdjustTime from "./SRC/Screens/AdjustTime"
+
+export default class App extends React.Component {
+  render() {
+    var Stack = createStackNavigator()
+    return (
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="MainPage"
+            component={MainPage}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AdjustTime"
+            component={AdjustTime}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    )
+  }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
