@@ -1,10 +1,52 @@
-import React from "react"
-import { View, Text, Picker } from "react-native"
-import { FlatList, TextInput } from "react-native-gesture-handler"
+import React, { Component } from "react"
+import { View, Text, SafeAreaView, StatusBar } from "react-native"
+import { connect } from "react-redux"
+import Slider from "../Components/Slider"
+import { AntDesign } from "@expo/vector-icons"
+import { TouchableOpacity } from "react-native-gesture-handler"
 
-class AdjustTime extends React.Component {
+export class AdjustTime extends Component {
+  componentDidMount() {
+    // console.log(this.props.Minutes, "auhdaushd")
+  }
   state = {
-    aurr: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    noOfMinutes: [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+    ],
   }
   render() {
     return (
@@ -14,70 +56,121 @@ class AdjustTime extends React.Component {
           backgroundColor: "#409367",
         }}
       >
-        <View
-          style={{
-            height: "50%",
-            alignItems: "center",
-            justifyContent: "space-evenly",
-            flexDirection: "row",
-          }}
-        >
-          <View style={{ alignItems: "center" }}>
-            <Text style={{ color: "white" }}>5 minutes</Text>
-            <TextInput
-              style={{
-                width: 100,
-                height: 20,
-                backgroundColor: "white",
-                borderRadius: 20,
-              }}
+        <StatusBar barStyle="light-content" />
+        <SafeAreaView style={{ flex: 1 }}>
+          {/*//! BACKBUTTON */}
+
+          <TouchableOpacity
+            onPress={() => {
+              this.props.navigation.goBack()
+            }}
+            style={{
+              width: "87%",
+              alignSelf: "center",
+              marginTop: 10,
+            }}
+          >
+            <AntDesign
+              name="leftcircle"
+              style={{ color: "white", fontSize: 30 }}
             />
-          </View>
-          <View style={{ alignItems: "center" }}>
-            <Text style={{ color: "white" }}>30 seconds</Text>
-            <TextInput
+          </TouchableOpacity>
+
+          {/*//! SLIDERS */}
+
+          <View style={{ flex: 2 }}>
+            {/*//! WORKOUTTAB TAB */}
+
+            <View
               style={{
-                width: 100,
-                height: 20,
-                backgroundColor: "white",
-                borderRadius: 20,
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "space-evenly",
               }}
-            />
+            >
+              <View style={{ width: "87%" }}>
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: 40,
+                  }}
+                >
+                  WORKOUT
+                </Text>
+                <Text
+                  style={{ color: "white", fontWeight: "200", fontSize: 25 }}
+                >
+                  {this.props.WorkoutTime} Seconds
+                </Text>
+              </View>
+              <Slider noOfElements={this.state.noOfMinutes} name="workout" />
+            </View>
+
+            {/*//! SECONDS TAB */}
+
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "space-evenly",
+              }}
+            >
+              <View style={{ width: "87%" }}>
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: 40,
+                  }}
+                >
+                  REST
+                </Text>
+                <Text
+                  style={{ color: "white", fontWeight: "200", fontSize: 25 }}
+                >
+                  {this.props.RestTime} Seconds
+                </Text>
+              </View>
+              <Slider noOfElements={this.state.noOfMinutes} name="rest" />
+            </View>
           </View>
-        </View>
-        <Picker
-          style={{
-            width: "100%",
-            alignSelf: "center",
-            color: "white",
-            backgroundColor: "pink",
-          }}
-          selectedValue="java"
-        >
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="JAV" value="java" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-          <Picker.Item label="HELO" value="hel" />
-        </Picker>
+
+          {/*//! REPEAT */}
+
+          <View
+            style={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "space-evenly",
+            }}
+          >
+            <View style={{ width: "87%" }}>
+              <Text
+                style={{
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: 40,
+                }}
+              >
+                REPEAT
+              </Text>
+              <Text style={{ color: "white", fontWeight: "200", fontSize: 25 }}>
+                {this.props.RepeatTime} Times
+              </Text>
+            </View>
+            <Slider noOfElements={this.state.noOfMinutes} name="repeat" />
+          </View>
+        </SafeAreaView>
       </View>
     )
   }
 }
 
-export default AdjustTime
+const mapStateToProps = (state) => {
+  return state
+}
+
+const mapDispatchToProps = {}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AdjustTime)

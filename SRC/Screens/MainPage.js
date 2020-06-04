@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Component } from "react"
 import {
   StyleSheet,
   View,
@@ -6,34 +6,118 @@ import {
   Animated,
   Easing,
   TouchableOpacity,
+  Text,
 } from "react-native"
+import { connect } from "react-redux"
 import { FontAwesome, AntDesign } from "@expo/vector-icons"
 
 class MainPage extends React.Component {
-  state = { rot: new Animated.Value(0) }
+  componentDidMount() {
+    this.setState({
+      repeats: this.props.RepeatTime,
+    })
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.RepeatTime !== this.props.RepeatTime) {
+      this.setState({
+        repeats: this.props.RepeatTime,
+      })
+    }
+  }
+
+  state = {
+    progressBar: new Animated.Value(0),
+    currentWork: "START",
+    repeats: 1,
+    dataOPA: new Animated.Value(1),
+    changeBackColor: new Animated.Value(0),
+  }
 
   render() {
+    var { WorkoutTime, RestTime, RepeatTime } = this.props
+
     //!   INTERPOLATE
 
-    var progressBar = this.state.rot.interpolate({
+    var goProgress = this.state.progressBar.interpolate({
       inputRange: [0, 1],
       outputRange: ["0%", "100%"],
     })
-    var progressBarHeight = this.state.rot.interpolate({
+    var goProgressHeight = this.state.progressBar.interpolate({
       inputRange: [0, 0.1],
       outputRange: ["0%", "100%"],
       extrapolate: "clamp",
     })
-    var changeBackColor = this.state.rot.interpolate({
-      inputRange: [0, 1],
-      outputRange: ["#409367", "lightskyblue"],
+
+    var changeBackColor = this.state.changeBackColor.interpolate({
+      inputRange: [0, 1, 2, 3],
+      outputRange: ["#409367", "#ED494A", "#3096F7", "#409367"],
     })
+
+    //! START WORKOUT
+
     var startWorkOut = () => {
-      Animated.timing(this.state.rot, {
-        toValue: 1,
-        duration: 10000,
-        easing: Easing.linear,
-      }).start()
+      this.setState({
+        currentWork: "WORKOUT",
+      })
+      Animated.parallel([
+        Animated.timing(this.state.progressBar, {
+          toValue: 1,
+          duration: 1000 * WorkoutTime,
+          easing: Easing.linear,
+        }),
+        Animated.spring(this.state.dataOPA, {
+          toValue: 0,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.state.changeBackColor, {
+          toValue: 1,
+          duration: 800,
+        }),
+      ]).start(() => {
+        this.setState({
+          currentWork: "REST",
+        })
+        Animated.parallel([
+          Animated.timing(this.state.progressBar, {
+            toValue: 0,
+            duration: 1000 * RestTime,
+            easing: Easing.linear,
+          }),
+          Animated.timing(this.state.changeBackColor, {
+            toValue: 2,
+            duration: 800,
+          }),
+        ]).start(() => {
+          this.setState(
+            {
+              repeats: this.state.repeats - 1,
+            },
+            () => {
+              if (this.state.repeats != 0) {
+                startWorkOut()
+              } else {
+                Animated.parallel([
+                  Animated.spring(this.state.dataOPA, {
+                    toValue: 1,
+                    useNativeDriver: true,
+                  }),
+                  Animated.timing(this.state.changeBackColor, {
+                    toValue: 3,
+                    duration: 800,
+                  }),
+                ]).start(() => {
+                  this.state.changeBackColor.setValue(0)
+                })
+                this.setState({
+                  currentWork: "START",
+                  repeats: RepeatTime,
+                })
+              }
+            }
+          )
+        })
+      })
     }
 
     //! RETURN
@@ -48,12 +132,38 @@ class MainPage extends React.Component {
 
         <View
           style={{
-            justifyContent: "space-evenly",
-            alignItems: "center",
             flex: 1,
           }}
         >
-          <Animated.Text style={hiitStyle.restORburn}>REST</Animated.Text>
+          <View
+            style={{ flex: 2, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text style={hiitStyle.restORburn}>{this.state.currentWork}</Text>
+          </View>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "space-evenly",
+              alignItems: "center",
+            }}
+          >
+            {/*//! INFO TEXT */}
+
+            <Text style={{ color: "white", fontWeight: "200", fontSize: 40 }}>
+              {this.state.repeats} REPS TO GO
+            </Text>
+            <Animated.View
+              style={{
+                alignItems: "center",
+                opacity: this.state.dataOPA,
+              }}
+            >
+              <Text style={hiitStyle.dataText}>
+                {WorkoutTime} SECONDS WORKOUT
+              </Text>
+              <Text style={hiitStyle.dataText}>{RestTime} SECONDS REST</Text>
+            </Animated.View>
+          </View>
         </View>
 
         {/*//! FUNCTIONALITY */}
@@ -71,10 +181,11 @@ class MainPage extends React.Component {
             <View style={hiitStyle.holder}>
               <Animated.View
                 style={{
-                  backgroundColor: "orange",
+                  backgroundColor: "#202020",
                   borderRadius: 80,
-                  height: progressBarHeight,
-                  width: progressBar,
+                  height: goProgressHeight,
+                  width: goProgress,
+                  position: "absolute",
                 }}
               ></Animated.View>
             </View>
@@ -99,7 +210,7 @@ class MainPage extends React.Component {
             >
               <FontAwesome
                 name="play"
-                style={{ color: "black", fontSize: 30 }}
+                style={{ color: "#202020", fontSize: 30 }}
               />
             </TouchableOpacity>
 
@@ -114,7 +225,7 @@ class MainPage extends React.Component {
             >
               <AntDesign
                 name="clockcircle"
-                style={{ color: "black", fontSize: 25 }}
+                style={{ color: "#202020", fontSize: 25 }}
               />
             </TouchableOpacity>
           </View>
@@ -170,5 +281,17 @@ const hiitStyle = StyleSheet.create({
     letterSpacing: 20,
     marginLeft: 10,
   },
+  dataText: {
+    color: "white",
+    fontWeight: "100",
+    fontSize: 15,
+  },
 })
-export default MainPage
+
+const mapStateToProps = (state) => {
+  return state
+}
+
+const mapDispatchToProps = {}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MainPage)
